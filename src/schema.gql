@@ -1,0 +1,58 @@
+# ------------------------------------------------------
+# THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+# ------------------------------------------------------
+
+input CreateUserInput {
+  """Unique email of user"""
+  email: String!
+
+  """Full name of user"""
+  name: String!
+
+  """All roles the user will have"""
+  roles: [Role!]
+}
+
+"""Custom date scalar type (format: MMM dd, yyyy)"""
+scalar CustomDate
+
+type Mutation {
+  """Create new user with name, email, roles, etc"""
+  createUser(input: CreateUserInput!): User
+}
+
+type Query {
+  """Get all users"""
+  getAllUsers: [User!]!
+
+  """Get user by id"""
+  getUser(id: String!): User!
+}
+
+"""User roles: renter, owner, or admin"""
+enum Role {
+  admin
+  owner
+  renter
+}
+
+"""User model which the api will return to client"""
+type User {
+  """Date when user is created"""
+  createdAt: CustomDate!
+
+  """Unique email of user"""
+  email: String!
+
+  """Unique uuid of user"""
+  id: String!
+
+  """Full name of user"""
+  name: String!
+
+  """All roles the user have"""
+  roles: [Role!]!
+
+  """Date when user is last updated"""
+  updatedAt: CustomDate!
+}
