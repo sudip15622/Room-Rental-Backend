@@ -15,6 +15,12 @@ export class User {
   @Field({ description: "Unique email of user" })
   email: string;
 
+  @Field({ description: "Secret password of user", nullable: true })
+  password?: string;
+
+  @Field({ description: "Profile avatar of user"})
+  image: string;
+
   @Field (() => [Role], {description: "All roles the user have"})
   roles: Role[];
 

@@ -3,10 +3,12 @@ import {
   HttpException,
   HttpStatus,
   Injectable,
+  NotFoundException,
 } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { Prisma, User as PrismaUser } from 'generated/prisma';
 import { PrismaException } from 'src/common/exceptions/prisma.exception';
+import {hash} from "bcrypt";
 
 @Injectable()
 export class UsersService {
@@ -15,27 +17,54 @@ export class UsersService {
   async getUser(
     uniqueInput: Prisma.UserWhereUniqueInput,
   ): Promise<PrismaUser | null> {
-    return await this.prisma.client.user.findUnique({
-      where: uniqueInput,
-    });
+    try {
+      // console.log(uniqueInput)
+      return await this.prisma.client.user.findUnique({
+        where: uniqueInput
+      })
+    } catch (error) {
+      if (error instanceof Prisma.PrismaClientKnownRequestError) {
+        throw new PrismaException(error);
+      }
+      throw error;
+    }
   }
 
   async getAllUsers(): Promise<PrismaUser[]> {
-    return await this.prisma.client.user.findMany();
+    try {
+      return await this.prisma.client.user.findMany();
+    } catch (error) {
+      if (error instanceof Prisma.PrismaClientKnownRequestError) {
+        throw new PrismaException(error);
+      }
+      throw error;
+    }
   }
 
-  async createUser(input: Prisma.UserCreateInput): Promise<PrismaUser | null> {
+  async createUser(input: Prisma.UserCreateInput): Promise<PrismaUser> {
     try {
-      // const existingUser = await this.prisma.client.user.findUnique({
-      //   where: { email: input.email },
-      // });
-
-      // if (existingUser) {
-      //   throw new BadRequestException('User with this email already exists!');
-      // }
-      return await this.prisma.client.user.create({
-        data: input,
+      const existingUser = await this.prisma.client.user.findUnique({
+        where: { email: input.email },
       });
+      
+      if (existingUser) {
+        throw new BadRequestException('User with this email already exists!');
+      }
+      const {password, ...rest} = input;
+      let hashedPassword: string;
+      if(password) {
+        hashedPassword = await hash(password, 10);
+        return await this.prisma.client.user.create({
+        data: {
+          ...rest,
+          password: hashedPassword
+        },
+      });
+      }
+      return await this.prisma.client.user.create({
+        data: input
+      })
+      
     } catch (error) {
       if (error instanceof Prisma.PrismaClientKnownRequestError) {
         throw new PrismaException(error);

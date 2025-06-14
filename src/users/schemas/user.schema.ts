@@ -14,6 +14,10 @@ export const CreateUserSchema = z.object({
     .string()
     .min(1, { message: 'Email is required!' })
     .regex(/^[^\s@]+@[^\s@]+\.[^\s@]+$/, { message: 'Invalid email!' }),
+  password: z
+    .string()
+    .min(1, { message: 'Password is required!' })
+    .optional(),
   roles: z
     .array(
       z.nativeEnum(Role, {

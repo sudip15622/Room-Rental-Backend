@@ -1,8 +1,8 @@
-// src/common/filters/gql-exception.filter.ts
 import {
   ArgumentsHost,
   Catch,
   HttpException,
+  UnauthorizedException,
   ExceptionFilter,
 } from '@nestjs/common';
 import { GqlExceptionFilter } from '@nestjs/graphql';
@@ -17,7 +17,6 @@ export class HttpExceptionFilter
   catch(exception: HttpException, host: ArgumentsHost) {
     const gqlHost = host.switchToHttp();
     const response: any = exception.getResponse();
-    console.log(response);
 
     if (exception instanceof ZodValidationException) {
       return new GraphQLError(exception.message, {
@@ -28,14 +27,29 @@ export class HttpExceptionFilter
       });
     }
 
-    if(exception instanceof PrismaException) {
+    if (exception instanceof PrismaException) {
       return new GraphQLError(exception.message, {
         extensions: {
-          errors: response.errors || response
-        }
-      })
+          code: 'BAD_REQUEST',
+          errors: response.errors || response,
+        },
+      });
     }
 
-    return new GraphQLError(exception.message)
+    if (exception instanceof UnauthorizedException) {
+      return new GraphQLError(exception.message, {
+        extensions: {
+          code: 'UNAUTHENTICATED',
+        },
+      });
+    }
+
+    // Default fallback for all other HttpExceptions
+    return new GraphQLError(exception.message, {
+      extensions: {
+        code: exception.getStatus?.() || 'INTERNAL_SERVER_ERROR',
+        errors: response,
+      },
+    });
   }
 }

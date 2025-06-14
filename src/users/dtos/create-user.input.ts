@@ -10,6 +10,12 @@ export class CreateUserInput implements CreateUserType {
   @Field({ description: 'Unique email of user' })
   email: string;
 
+  @Field({ description: 'Secret password of user', nullable: true })
+  password?: string;
+
+  @Field({ description: 'Profile avatar of user', nullable: true })
+  image?: string;
+
   @Field(() => [Role], { description: 'All roles the user will have', nullable: true })
   roles?: Role[];
 }

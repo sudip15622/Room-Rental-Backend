@@ -2,12 +2,27 @@
 # THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
 # ------------------------------------------------------
 
+"""Authenticated user model after successful login"""
+type AuthenticatedUser {
+  """Unique uuid of user"""
+  id: String!
+
+  """Access token of authenticated user"""
+  token: String!
+}
+
 input CreateUserInput {
   """Unique email of user"""
   email: String!
 
+  """Profile avatar of user"""
+  image: String
+
   """Full name of user"""
   name: String!
+
+  """Secret password of user"""
+  password: String
 
   """All roles the user will have"""
   roles: [Role!]
@@ -19,14 +34,18 @@ scalar CustomDate
 type Mutation {
   """Create new user with name, email, roles, etc"""
   createUser(input: CreateUserInput!): User
+
+  """Login with email and password"""
+  login(email: String!, password: String!): AuthenticatedUser!
 }
 
 type Query {
   """Get all users"""
   getAllUsers: [User!]!
 
-  """Get user by id"""
-  getUser(id: String!): User!
+  """Get user by id or email"""
+  getUser(email: String!, id: String!): User
+  profile: User
 }
 
 """User roles: renter, owner, or admin"""
@@ -47,8 +66,14 @@ type User {
   """Unique uuid of user"""
   id: String!
 
+  """Profile avatar of user"""
+  image: String!
+
   """Full name of user"""
   name: String!
+
+  """Secret password of user"""
+  password: String
 
   """All roles the user have"""
   roles: [Role!]!
