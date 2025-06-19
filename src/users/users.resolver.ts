@@ -7,6 +7,9 @@ import { ZodValidationPipe } from 'src/common/pipes/zod-validation.pipe';
 import { BadRequestException, UseGuards, UsePipes } from '@nestjs/common';
 import { Prisma } from 'generated/prisma';
 import { GqlJwtAuthGuard } from 'src/auth/guards/gql-jwt-auth.guard';
+import { Roles } from 'src/common/decorators/roles.decorator';
+import { Role } from './enums/role.enum';
+import { GqlRolesGuard } from 'src/common/guards/roles.guard';
 
 @Resolver(() => User)
 export class UsersResolver {
@@ -43,8 +46,9 @@ export class UsersResolver {
   }
 
   @Mutation(() => User, {description: "Create new user with name, email, roles, etc", nullable: true})
+  @UseGuards(GqlRolesGuard)
+  @Roles(Role.renter)
   async createUser(@Args('input', new ZodValidationPipe(CreateUserSchema)) input: CreateUserInput){
-    // console.log(input)
     return await this.usersService.createUser(input);
   }
 }

@@ -4,11 +4,14 @@
 
 """Authenticated user model after successful login"""
 type AuthenticatedUser {
+  """Access token of authenticated user"""
+  accessToken: String!
+
   """Unique uuid of user"""
   id: String!
 
-  """Access token of authenticated user"""
-  token: String!
+  """Refresh token of authenticated user"""
+  refreshToken: String
 }
 
 input CreateUserInput {
@@ -37,6 +40,8 @@ type Mutation {
 
   """Login with email and password"""
   login(email: String!, password: String!): AuthenticatedUser!
+  refreshToken: AuthenticatedUser!
+  signOut: String!
 }
 
 type Query {
@@ -74,6 +79,9 @@ type User {
 
   """Secret password of user"""
   password: String
+
+  """Refresh token of user if logged in"""
+  refreshToken: String
 
   """All roles the user have"""
   roles: [Role!]!

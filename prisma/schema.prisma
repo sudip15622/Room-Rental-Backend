@@ -16,14 +16,15 @@ datasource db {
 }
 
 model User {
-  id        String   @id @default(uuid())
-  name      String
-  email     String   @unique
-  password  String?
-  image     String   @default("/default_user.png")
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  roles     Role[]   @default([renter])
+  id           String   @id @default(uuid())
+  name         String
+  email        String   @unique
+  password     String?
+  refreshToken String?
+  image        String   @default("/default_user.png")
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  roles        Role[]   @default([renter])
 }
 
 enum Role {

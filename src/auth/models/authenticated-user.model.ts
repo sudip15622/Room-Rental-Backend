@@ -8,5 +8,8 @@ export class AuthenticatedUser {
   id: string;
 
   @Field({description: "Access token of authenticated user"})
-  token: string;
+  accessToken: string;
+
+  @Field({description: "Refresh token of authenticated user", nullable: true})
+  refreshToken?: string;
 }

@@ -3,6 +3,8 @@ import { BadRequestException, Req, UsePipes, UseGuards } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { AuthenticatedUser } from './models/authenticated-user.model';
 import { GqlLocalAuthGuard } from './guards/gql-local-auth.guard';
+import { GqlRefreshJwtAuthGuard } from './guards/gql-refresh-jwt-auth.guard';
+import { GqlJwtAuthGuard } from './guards/gql-jwt-auth.guard';
 
 @Resolver()
 export class AuthResolver {
@@ -17,6 +19,19 @@ export class AuthResolver {
     @Args('password') password: string,
     @Context() context: any,
   ) {
-    return await this.authService.login(context.req.user.id)
+    return await this.authService.login(context.req.user);
+  }
+
+  @Mutation(() => AuthenticatedUser)
+  @UseGuards(GqlRefreshJwtAuthGuard)
+  async refreshToken(@Context() context: any) {
+    return await this.authService.refreshToken(context.req.user.id);
+  }
+
+  @Mutation(() => String)
+  @UseGuards(GqlJwtAuthGuard)
+  async signOut(@Context() context: any) {
+    await this.authService.signOut(context.req.user.id);
+    return "User sign out successful"
   }
 }

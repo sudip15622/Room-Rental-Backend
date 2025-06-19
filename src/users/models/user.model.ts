@@ -18,6 +18,9 @@ export class User {
   @Field({ description: "Secret password of user", nullable: true })
   password?: string;
 
+  @Field({ description: "Refresh token of user if logged in", nullable: true })
+  refreshToken?: string;
+
   @Field({ description: "Profile avatar of user"})
   image: string;
 

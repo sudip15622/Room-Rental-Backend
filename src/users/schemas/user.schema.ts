@@ -22,7 +22,7 @@ export const CreateUserSchema = z.object({
     .array(
       z.nativeEnum(Role, {
         errorMap: () => ({
-          message: "Invalid role. Must be 'renter', 'owner', or 'admin'.",
+          message: "Invalid role. Must be 'renter', or 'owner', or 'admin'.",
         }),
       }),
     )

@@ -8,7 +8,7 @@ import {
 import { PrismaService } from 'src/prisma/prisma.service';
 import { Prisma, User as PrismaUser } from 'generated/prisma';
 import { PrismaException } from 'src/common/exceptions/prisma.exception';
-import {hash} from "bcrypt";
+import * as argon2 from 'argon2';
 
 @Injectable()
 export class UsersService {
@@ -20,8 +20,8 @@ export class UsersService {
     try {
       // console.log(uniqueInput)
       return await this.prisma.client.user.findUnique({
-        where: uniqueInput
-      })
+        where: uniqueInput,
+      });
     } catch (error) {
       if (error instanceof Prisma.PrismaClientKnownRequestError) {
         throw new PrismaException(error);
@@ -46,25 +46,41 @@ export class UsersService {
       const existingUser = await this.prisma.client.user.findUnique({
         where: { email: input.email },
       });
-      
+
       if (existingUser) {
         throw new BadRequestException('User with this email already exists!');
       }
-      const {password, ...rest} = input;
+      const { password, ...rest } = input;
       let hashedPassword: string;
-      if(password) {
-        hashedPassword = await hash(password, 10);
+      if (password) {
+        hashedPassword = await argon2.hash(password);
         return await this.prisma.client.user.create({
-        data: {
-          ...rest,
-          password: hashedPassword
-        },
-      });
+          data: {
+            ...rest,
+            password: hashedPassword,
+          },
+        });
       }
       return await this.prisma.client.user.create({
-        data: input
-      })
-      
+        data: input,
+      });
+    } catch (error) {
+      if (error instanceof Prisma.PrismaClientKnownRequestError) {
+        throw new PrismaException(error);
+      }
+      throw error;
+    }
+  }
+
+  async updateRefreshToken(
+    userId: string,
+    refreshToken: string | null,
+  ): Promise<PrismaUser> {
+    try {
+      return await this.prisma.client.user.update({
+        where: { id: userId },
+        data: { refreshToken: refreshToken },
+      });
     } catch (error) {
       if (error instanceof Prisma.PrismaClientKnownRequestError) {
         throw new PrismaException(error);
